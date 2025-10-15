@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,14 +60,20 @@ function ServicePicker({
   setIcon: (icon: string) => void;
   defaultValue?: string;
 }) {
+  useEffect(() => {
+    if (defaultValue && !icon) {
+      setIcon(defaultValue);
+    }
+  }, [defaultValue, icon, setIcon]);
   return (
     <div className="space-y-2">
-      <Label htmlFor="service">Servicio</Label>
+      <Label htmlFor="icon">Servicio</Label>
       <Select
-        name="service"
-        id="service"
+        name="icon"
+        id="icon"
         required
         className="w-full"
+        value={icon || ""}
         onChange={(e) => setIcon(e.target.value)}
       >
         <option value="">Selecciona un servicio</option>

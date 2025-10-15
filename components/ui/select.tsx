@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 function Select({
   className,
+  children,
   ...props
 }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
@@ -24,7 +25,30 @@ function Select({
         cursor: "pointer",
       }}
       {...props}
-    ></select>
+    >
+      {children ?? (
+        <>
+          <option
+            value="jardineria"
+            className="bg-white text-gray-700 hover:bg-blue-50"
+          >
+            Jardinería
+          </option>
+          <option
+            value="limpieza"
+            className="bg-white text-gray-700 hover:bg-blue-50"
+          >
+            Limpieza
+          </option>
+          <option
+            value="fontaneria"
+            className="bg-white text-gray-700 hover:bg-blue-50"
+          >
+            Fontanería
+          </option>
+        </>
+      )}
+    </select>
   );
 }
 
