@@ -88,8 +88,18 @@ function ServicePicker({
 export function SubdomainForm() {
   const [icon, setIcon] = useState("");
 
+  const fixedCreateSubdomainAction = async (
+    prevState: CreateState,
+    formData: FormData
+  ): Promise<CreateState> => {
+    return createSubdomainAction(prevState, formData).then(
+      (result) =>
+        result ?? { subdomain: "", icon: "", success: false, error: "" }
+    );
+  };
+
   const [state, action, isPending] = useActionState<CreateState, FormData>(
-    createSubdomainAction,
+    fixedCreateSubdomainAction,
     {}
   );
 

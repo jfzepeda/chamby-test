@@ -1,10 +1,7 @@
-"use server";
+"use client";
 
 import { redis } from "@/lib/redis";
-import { isValidIcon } from "@/lib/subdomains";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { rootDomain, protocol } from "@/lib/utils";
 
 export async function createSubdomainAction(
   prevState: any,
@@ -34,7 +31,10 @@ export async function createSubdomainAction(
   }
 
   const texto_para_whatsapp = `Hola,%20me%20gustaría%20contratar%20el%20servicio%20de%20${icon}.`;
-  redirect(`https://wa.me/5213411479199?text=${texto_para_whatsapp}`);
+  const url = `https://wa.me/5213411479199?text=${texto_para_whatsapp}`;
+  // redirect(url);
+  // abrir una nueva pestaña con la url
+  window.open(url, "_blank");
 }
 
 export async function deleteSubdomainAction(
@@ -43,6 +43,5 @@ export async function deleteSubdomainAction(
 ) {
   const subdomain = formData.get("subdomain");
   await redis.del(`subdomain:${subdomain}`);
-  revalidatePath("/admin");
   return { success: "Domain deleted successfully" };
 }
