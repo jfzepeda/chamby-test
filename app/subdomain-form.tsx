@@ -7,31 +7,37 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Smile } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import {
-  EmojiPicker,
-  EmojiPickerContent,
-  EmojiPickerSearch,
-  EmojiPickerFooter,
-} from "@/components/ui/emoji-picker";
+import { SelectService } from "@/components/ui/select";
 import { createSubdomainAction } from "@/app/actions";
-import { rootDomain } from "@/lib/utils";
+import { askOpenai } from "@/app/ai-actions";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 type CreateState = {
   error?: string;
   success?: boolean;
+  description?: string;
   subdomain?: string;
-  icon?: string;
+  service?: string;
 };
 
-function SubdomainInput({ defaultValue }: { defaultValue?: string }) {
+function PhoneInput({ defaultValue }: { defaultValue?: string }) {
+  const [phone, setPhone] = useState(defaultValue || "");
+  const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ""); // solo números
+    setPhone(value);
+    if (value && !/^\d{10}$/.test(value)) {
+      if (value.length > 10) {
+        setPhone(value.slice(0, 10)); // limitar a 10 dígitos
+      } else {
+        setError("Debe tener exactamente 10 dígitos numéricos");
+      }
+    } else {
+      setError("");
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor="subdomain">Número de teléfono</Label>
@@ -40,53 +46,120 @@ function SubdomainInput({ defaultValue }: { defaultValue?: string }) {
           <Input
             id="subdomain"
             name="subdomain"
-            placeholder="Ej. 33 1234 5678"
-            defaultValue={defaultValue}
-            className="w-full rounded-r-none focus:z-10"
+            placeholder="Ej. 3312345678"
+            value={phone}
+            onChange={handleChange}
+            className="w-full rounded focus:z-10"
             required
           />
         </div>
       </div>
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+function DescriptionInput({
+  defaultValue,
+  onServiceDetected,
+}: {
+  defaultValue?: string;
+  onServiceDetected: (service: string) => void;
+}) {
+  const [text, setText] = useState(defaultValue || "");
+  const [error, _setError] = useState("");
+
+  const [aiState, aiAction, aiPending] = useActionState<any, FormData>(
+    askOpenai,
+    {}
+  );
+
+  useEffect(() => {
+    if (aiState?.service) {
+      onServiceDetected(aiState.service);
+    }
+    if (aiState?.error) {
+      // surface validation error from server action
+      _setError(aiState.error);
+    } else if (aiState?.success) {
+      _setError("");
+    }
+  }, [aiState, onServiceDetected]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setText(value);
+  };
+
+  return (
+    <div className="space-y-4">
+      <Label htmlFor="description">Tarea a realizar</Label>
+      <div className="flex items-center">
+        <div className="relative flex-1">
+          <Input
+            id="description"
+            name="description"
+            placeholder="Necesito una persona que me ayude con..."
+            value={text}
+            onChange={handleChange}
+            className="w-full rounded focus:z-10"
+            required
+          />
+        </div>
+        <div className="ml-2">
+          <Button
+            type="submit"
+            variant="secondary"
+            formAction={aiAction}
+            formNoValidate
+            disabled={aiPending}
+          >
+            {aiPending ? "..." : <AutoAwesomeIcon />}
+          </Button>
+        </div>
+      </div>
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 }
 
 function ServicePicker({
-  icon,
-  setIcon,
+  service,
+  setService,
   defaultValue,
 }: {
-  icon: string;
-  setIcon: (icon: string) => void;
+  service: string;
+  setService: (service: string) => void;
   defaultValue?: string;
 }) {
   useEffect(() => {
-    if (defaultValue && !icon) {
-      setIcon(defaultValue);
+    if (defaultValue && !service) {
+      setService(defaultValue);
     }
-  }, [defaultValue, icon, setIcon]);
+  }, [defaultValue, service, setService]);
   return (
     <div className="space-y-2">
-      <Label htmlFor="icon">Servicio</Label>
-      <Select
-        name="icon"
-        id="icon"
+      <Label htmlFor="service">Servicio</Label>
+      <SelectService
+        name="service"
+        id="service"
         required
-        className="w-full"
-        value={icon || ""}
-        onChange={(e) => setIcon(e.target.value)}
+        value={service || ""}
+        onChange={(e, child) =>
+          setService((e.target as HTMLInputElement).value)
+        }
       >
-        <option value="">Selecciona un servicio</option>
+        {/* <option value="">Selecciona un servicio</option>
         <option value="jardineria">Jardinería</option>
         <option value="limpieza">Limpieza</option>
-        <option value="fontaneria">Fontanería</option>
-      </Select>
+        <option value="fontaneria">Fontanería</option> */}
+      </SelectService>
     </div>
   );
 }
 
 export function SubdomainForm() {
-  const [icon, setIcon] = useState("");
+  const [service, setService] = useState("");
 
   const fixedCreateSubdomainAction = async (
     prevState: CreateState,
@@ -94,7 +167,13 @@ export function SubdomainForm() {
   ): Promise<CreateState> => {
     return createSubdomainAction(prevState, formData).then(
       (result) =>
-        result ?? { subdomain: "", icon: "", success: false, error: "" }
+        result ?? {
+          subdomain: "",
+          description: "",
+          service: "",
+          success: false,
+          error: "",
+        }
     );
   };
 
@@ -105,15 +184,23 @@ export function SubdomainForm() {
 
   return (
     <form action={action} className="space-y-4">
-      <SubdomainInput defaultValue={state?.subdomain} />
+      <PhoneInput defaultValue={state?.subdomain} />
+      <DescriptionInput
+        defaultValue={state?.description}
+        onServiceDetected={setService}
+      />
 
-      <ServicePicker icon={icon} setIcon={setIcon} defaultValue={state?.icon} />
+      <ServicePicker
+        service={service}
+        setService={setService}
+        defaultValue={state?.service}
+      />
 
       {state?.error && (
         <div className="text-sm text-red-500">{state.error}</div>
       )}
 
-      <Button type="submit" className="w-full" disabled={isPending || !icon}>
+      <Button type="submit" className="w-full" disabled={isPending || !service}>
         {isPending ? "Enviando..." : "Contactar"}
       </Button>
     </form>

@@ -45,3 +45,5 @@ export async function deleteSubdomainAction(
   await redis.del(`subdomain:${subdomain}`);
   return { success: "Domain deleted successfully" };
 }
+
+// AI-related actions moved to app/ai-actions.ts (server)
