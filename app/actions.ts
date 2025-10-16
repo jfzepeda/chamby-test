@@ -7,30 +7,30 @@ export async function createSubdomainAction(
   prevState: any,
   formData: FormData
 ) {
-  const subdomain = formData.get("subdomain") as string;
-  const icon = formData.get("icon") as string;
+  const phone = formData.get("phone") as string;
+  const service = formData.get("service") as string;
 
-  if (!subdomain || !icon) {
+  if (!phone || !service) {
     return {
-      subdomain,
-      icon,
+      phone,
+      service,
       success: false,
-      error: "Subdomain and icon are required",
+      error: "Subdomain and service are required",
     };
   }
 
-  const sanitizedPhone = subdomain.replace(/[^0-9]/g, "");
+  const sanitizedPhone = phone.replace(/[^0-9]/g, "");
 
-  if (sanitizedPhone !== subdomain) {
+  if (sanitizedPhone !== phone) {
     return {
-      subdomain,
-      icon,
+      phone,
+      service,
       success: false,
       error: "Ingresa un número de teléfono válido (solo números)",
     };
   }
 
-  const texto_para_whatsapp = `Hola,%20me%20gustaría%20contratar%20el%20servicio%20de%20${icon}.`;
+  const texto_para_whatsapp = `Hola,%20me%20gustaría%20contratar%20el%20servicio%20de%20${service}.`;
   const url = `https://wa.me/5213411479199?text=${texto_para_whatsapp}`;
   // redirect(url);
   // abrir una nueva pestaña con la url
@@ -41,8 +41,8 @@ export async function deleteSubdomainAction(
   prevState: any,
   formData: FormData
 ) {
-  const subdomain = formData.get("subdomain");
-  await redis.del(`subdomain:${subdomain}`);
+  const phone = formData.get("phone");
+  await redis.del(`phone:${phone}`);
   return { success: "Domain deleted successfully" };
 }
 

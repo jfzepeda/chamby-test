@@ -16,7 +16,7 @@ type CreateState = {
   error?: string;
   success?: boolean;
   description?: string;
-  subdomain?: string;
+  phone?: string;
   service?: string;
 };
 
@@ -40,12 +40,12 @@ function PhoneInput({ defaultValue }: { defaultValue?: string }) {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="subdomain">Número de teléfono</Label>
+      <Label htmlFor="phone">Número de teléfono</Label>
       <div className="flex items-center">
         <div className="relative flex-1">
           <Input
-            id="subdomain"
-            name="subdomain"
+            id="phone"
+            name="phone"
             placeholder="Ej. 3312345678"
             value={phone}
             onChange={handleChange}
@@ -103,7 +103,6 @@ function DescriptionInput({
             value={text}
             onChange={handleChange}
             className="w-full rounded focus:z-10"
-            required
           />
         </div>
         <div className="ml-2">
@@ -168,7 +167,7 @@ export function SubdomainForm() {
     return createSubdomainAction(prevState, formData).then(
       (result) =>
         result ?? {
-          subdomain: "",
+          phone: "",
           description: "",
           service: "",
           success: false,
@@ -184,7 +183,7 @@ export function SubdomainForm() {
 
   return (
     <form action={action} className="space-y-4">
-      <PhoneInput defaultValue={state?.subdomain} />
+      <PhoneInput defaultValue={state?.phone} />
       <DescriptionInput
         defaultValue={state?.description}
         onServiceDetected={setService}
