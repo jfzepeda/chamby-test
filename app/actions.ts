@@ -32,7 +32,7 @@ export async function createSubdomainAction(
 
   const texto_para_whatsapp = `Hola,%20me%20gustaría%20contratar%20el%20servicio%20de%20${service}.`;
   // const url = `https://wa.me/5213411479199?text=${texto_para_whatsapp}`;
-  const url = "https://t.me/The_Chamby_Bot?start=hola";
+  const url = `https://t.me/The_Chamby_Bot?start=${texto_para_whatsapp}`;
   // redirect(url);
   // abrir una nueva pestaña con la url
   window.open(url, "_blank");
