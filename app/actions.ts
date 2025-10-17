@@ -30,12 +30,21 @@ export async function createSubdomainAction(
     };
   }
 
-  const texto_para_whatsapp = encodeURIComponent(
-    `Hola, me gustaría contratar el servicio de ${service}.`
-  );
-  const texto_para_telegram = encodeURIComponent(
-    `Holamegustaríacontratarelserviciode${service}`
-  );
+  // const texto = `Hola, me gustaría contratar el servicio de ${service}.`;
+  // const texto_para_whatsapp = encodeURIComponent(texto);
+  const texto_simple = `contratarServicioDe${service}`;
+
+  // eliminar espacio y caracteres especiales para telegram
+  const texto_para_telegram = texto_simple
+    .replace(/ /g, "")
+    .replace(/,/g, "")
+    .replace(/á/g, "a")
+    .replace(/é/g, "e")
+    .replace(/í/g, "i")
+    .replace(/ó/g, "o")
+    .replace(/ú/g, "u")
+    .replace(/ñ/g, "n");
+
   const url = `https://t.me/The_Chamby_Bot?start=${texto_para_telegram}`;
   // const url = `https://wa.me/5213411479199?text=${texto_para_whatsapp}`;
   window.open(url, "_blank");
