@@ -30,8 +30,11 @@ export async function createSubdomainAction(
     };
   }
 
-  const texto_para_telegram = encodeURIComponent(
+  const texto_para_whatsapp = encodeURIComponent(
     `Hola, me gustaría contratar el servicio de ${service}.`
+  );
+  const texto_para_telegram = encodeURIComponent(
+    `Holamegustaríacontratarelserviciode${service}`
   );
   const url = `https://t.me/The_Chamby_Bot?start=${texto_para_telegram}`;
   // const url = `https://wa.me/5213411479199?text=${texto_para_whatsapp}`;
